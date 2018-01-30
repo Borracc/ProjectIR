@@ -90,6 +90,21 @@ public class ResRun{
 
     }//leggiRunNorm
 
+    public static double[] getScores(Record[] runs, int topic, String doc){
+        double[] result= new double[10];
+        for(int i=0; i<result.length;i++){
+            result[i]=0.0;
+        }//for
+        int index=0;
+        for(int k=0; k<runs.length; k++){
+            if(runs[k].getTopic()==topic && runs[k].getDoc().equals(doc)) {
+                result[index]=runs[k].getScore();
+                index++;
+            }//if
+        }//for
+        return result;
+    }//getScores
+
     public static void main(String[] args){
 
         RunDataNorm[][] runN= new RunDataNorm[10][];
@@ -123,10 +138,30 @@ public class ResRun{
             }//for
         }//for
 
+        System.out.println("*** LETTURA TOPIC=400 DOC='LA032590-0089'...");
         for(int k=0; k<runs.length; k++){
-            if(runs[k].getTopic()==400) {
+            if(runs[k].getTopic()==400 && runs[k].getDoc().equals("LA032590-0089")) {
                 System.out.println(" k: "+k+" ---> "+runs[k].getDoc()+" -> score: "+runs[k].getScore()+" -> model: "+runs[k].getModel());
             }//if
+        }//for
+
+        System.out.println("*** LETTURA TOPIC=400 DOC='FR940202-1-00020'...");
+        for(int k=0; k<runs.length; k++){
+            if(runs[k].getTopic()==400 && runs[k].getDoc().equals("FR940202-1-00020")) {
+                System.out.println(" k: "+k+" ---> "+runs[k].getDoc()+" -> score: "+runs[k].getScore()+" -> model: "+runs[k].getModel());
+            }//if
+        }//for
+
+        System.out.println("*** LETTURA TOPIC=400 DOC='FR940202-1-00020' con metodo getScores...");
+        double[] res= getScores(runs,400,"FR940202-1-00020");
+        for(int k=0; k<res.length; k++){
+            System.out.println("FR940202-1-00020 -> score: "+res[k]);
+        }//for
+
+        System.out.println("*** LETTURA TOPIC=400 DOC='farlocco' con metodo getScores...");
+        res= getScores(runs,400,"farlocco");
+        for(int k=0; k<res.length; k++){
+            System.out.println("farlocco -> score: "+res[k]);
         }//for
 
     }//main
