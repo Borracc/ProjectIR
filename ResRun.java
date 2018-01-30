@@ -108,32 +108,26 @@ public class ResRun{
         runN[8] = leggiRunNorm("D:/Uni/IR/IRprogVario/terrier-core-4.1/var/results/TF_IDF_8.res");
         runN[9] = leggiRunNorm("D:/Uni/IR/IRprogVario/terrier-core-4.1/var/results/Hiemstra_LM0.15_9.res");
 
+        System.out.println("*** CREAZIONE ARRAY TOTALE ...");
         Record[] runs=new Record[462875];
 
-        for(int j=0; j<10;j++) {
+        for(int j=0; j<5;j++) {
             for (int i = 0; i < runN[j].length; i++) {
-                runs[j*10+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+                runs[j*47396+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
             }//for
         }//for
 
-        /*System.out.println("*** CREAZIONE MAPPA ...");
-        String[] modelli=new String[10];
-
-        HashMap<Chiavi, Double> runs= new HashMap<Chiavi, Double>();
-
-        for(int j=0; j<10; j++){
-            for(int i=0; i<runN[j].length; i++) {
-                runs.put(new Chiavi( runN[j][i].getIdDoc(),  runN[j][i].getTopic(),  runN[j][i].getIdRun()),  runN[j][i].getScoreNorm());
-                if (i == 0) {//acquisiozione id modelli
-                    modelli[j] = runN[j][i].getIdRun();
-                }//if
+        for(int j=5; j<10;j++) {
+            for (int i = 0; i < runN[j].length; i++) {
+                runs[236980+(j-5)*45179+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
             }//for
         }//for
 
-        System.out.println("*** NOMI MODELLI:");
-        for(int j=0; j<10; j++){
-            System.out.println("--- "+ modelli[j]+" ---");
-        }//for*/
-        
+        for(int k=0; k<runs.length; k++){
+            if(runs[k].getTopic()==400) {
+                System.out.println(" k: "+k+" ---> "+runs[k].getDoc()+" -> score: "+runs[k].getScore()+" -> model: "+runs[k].getModel());
+            }//if
+        }//for
+
     }//main
 }//ResRun
