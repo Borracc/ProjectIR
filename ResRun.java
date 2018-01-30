@@ -105,6 +105,17 @@ public class ResRun{
         return result;
     }//getScores
 
+    public static double combMIN(Record[] runs, int topic, String doc){
+        double[] res=getScores(runs,topic,doc);
+        double min=res[0];
+        for(int i=1; i<res.length;i++){
+            if(min>res[i]){
+                min=res[i];
+            }//if
+        }//for
+        return min;
+    }//combMIN
+
     public static void main(String[] args){
 
         RunDataNorm[][] runN= new RunDataNorm[10][];
@@ -124,17 +135,39 @@ public class ResRun{
         runN[9] = leggiRunNorm("D:/Uni/IR/IRprogVario/terrier-core-4.1/var/results/Hiemstra_LM0.15_9.res");
 
         System.out.println("*** CREAZIONE ARRAY TOTALE runs ...");
-          Record[] runs=new Record[462875];
-          for(int j=0; j<5;j++) {
-              for (int i = 0; i < runN[j].length; i++) {
-                  runs[j*47396+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
-              }//for
-          }//for
-          for(int j=5; j<10;j++) {
-              for (int i = 0; i < runN[j].length; i++) {
-                  runs[236980+(j-5)*45179+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
-              }//for
-          }//for
+        Record[] runs=new Record[462875];
+        for(int j=0; j<5;j++) {
+            for (int i = 0; i < runN[j].length; i++) {
+                runs[j*47396+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+            }//for
+        }//for
+        for(int j=5; j<10;j++) {
+            for (int i = 0; i < runN[j].length; i++) {
+                runs[236980+(j-5)*45179+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+            }//for
+        }//for
+
+        System.out.println("*** CREAZIONE LISTA DOCUMENT_ID ...");
+        String[] docs = new String[462875];   //Lista dei Doc_ID
+        int max = 0;    //max numero di doc_ID
+        boolean found = false;
+        for(int k=0; k<runs.length; k++){
+            for (int m=0; m<max; m++)
+                if (runs[k].getDoc().equals(docs[m]))
+                    found = true;
+            if (!found) {
+                docs[max]=runs[k].getDoc();
+                max++;
+            }
+            found = false;
+        }
+
+        System.out.println("*** TEST combMIN ...");
+        System.out.println("combMIN di topic=400 doc='farlocco': "+combMIN(runs,400,"farlocco"));
+        System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"FR940202-1-00020"));
+        System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"LA032590-0089"));
+
+        
 
     }//main
 }//ResRun
