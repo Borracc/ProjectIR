@@ -123,46 +123,18 @@ public class ResRun{
         runN[8] = leggiRunNorm("D:/Uni/IR/IRprogVario/terrier-core-4.1/var/results/TF_IDF_8.res");
         runN[9] = leggiRunNorm("D:/Uni/IR/IRprogVario/terrier-core-4.1/var/results/Hiemstra_LM0.15_9.res");
 
-        System.out.println("*** CREAZIONE ARRAY TOTALE ...");
-        Record[] runs=new Record[462875];
-
-        for(int j=0; j<5;j++) {
-            for (int i = 0; i < runN[j].length; i++) {
-                runs[j*47396+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
-            }//for
-        }//for
-
-        for(int j=5; j<10;j++) {
-            for (int i = 0; i < runN[j].length; i++) {
-                runs[236980+(j-5)*45179+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
-            }//for
-        }//for
-
-        System.out.println("*** LETTURA TOPIC=400 DOC='LA032590-0089'...");
-        for(int k=0; k<runs.length; k++){
-            if(runs[k].getTopic()==400 && runs[k].getDoc().equals("LA032590-0089")) {
-                System.out.println(" k: "+k+" ---> "+runs[k].getDoc()+" -> score: "+runs[k].getScore()+" -> model: "+runs[k].getModel());
-            }//if
-        }//for
-
-        System.out.println("*** LETTURA TOPIC=400 DOC='FR940202-1-00020'...");
-        for(int k=0; k<runs.length; k++){
-            if(runs[k].getTopic()==400 && runs[k].getDoc().equals("FR940202-1-00020")) {
-                System.out.println(" k: "+k+" ---> "+runs[k].getDoc()+" -> score: "+runs[k].getScore()+" -> model: "+runs[k].getModel());
-            }//if
-        }//for
-
-        System.out.println("*** LETTURA TOPIC=400 DOC='FR940202-1-00020' con metodo getScores...");
-        double[] res= getScores(runs,400,"FR940202-1-00020");
-        for(int k=0; k<res.length; k++){
-            System.out.println("FR940202-1-00020 -> score: "+res[k]);
-        }//for
-
-        System.out.println("*** LETTURA TOPIC=400 DOC='farlocco' con metodo getScores...");
-        res= getScores(runs,400,"farlocco");
-        for(int k=0; k<res.length; k++){
-            System.out.println("farlocco -> score: "+res[k]);
-        }//for
+        System.out.println("*** CREAZIONE ARRAY TOTALE runs ...");
+          Record[] runs=new Record[462875];
+          for(int j=0; j<5;j++) {
+              for (int i = 0; i < runN[j].length; i++) {
+                  runs[j*47396+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+              }//for
+          }//for
+          for(int j=5; j<10;j++) {
+              for (int i = 0; i < runN[j].length; i++) {
+                  runs[236980+(j-5)*45179+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+              }//for
+          }//for
 
     }//main
 }//ResRun
