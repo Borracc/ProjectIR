@@ -116,6 +116,26 @@ public class ResRun{
         return min;
     }//combMIN
 
+    public static double combMAX(Record[] runs, int topic, String doc){
+        double[] res=getScores(runs,topic,doc);
+        double max=res[0];
+        for(int i=1; i<res.length;i++){
+            if(max<res[i]){
+                max=res[i];
+            }//if
+        }//for
+        return max;
+    }//combMAX
+
+    public static double combSUM(Record[] runs, int topic, String doc){
+        double[] res=getScores(runs,topic,doc);
+        double sum=res[0];
+        for(int i=1; i<res.length;i++){
+            sum+=res[i];
+        }//for
+        return sum;
+    }//combSUM
+
     public static void main(String[] args){
 
         RunDataNorm[][] runN= new RunDataNorm[10][];
@@ -152,22 +172,33 @@ public class ResRun{
         int max = 0;    //max numero di doc_ID
         boolean found = false;
         for(int k=0; k<runs.length; k++){
-            for (int m=0; m<max; m++)
-                if (runs[k].getDoc().equals(docs[m]))
+            for (int m=0; m<max; m++) {
+                if (runs[k].getDoc().compareTo(docs[m])==0) {
                     found = true;
+                    break;
+                }//if
+            }//for
             if (!found) {
                 docs[max]=runs[k].getDoc();
                 max++;
-            }
+            }//if
             found = false;
-        }
+        }//for
 
         System.out.println("*** TEST combMIN ...");
         System.out.println("combMIN di topic=400 doc='farlocco': "+combMIN(runs,400,"farlocco"));
         System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"FR940202-1-00020"));
         System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"LA032590-0089"));
 
-        
+        System.out.println("*** TEST combMAX ...");
+        System.out.println("combMAX di topic=400 doc='farlocco': "+combMAX(runs,400,"farlocco"));
+        System.out.println("combMAX di topic=400 doc='FR940202-1-00020': "+combMAX(runs,400,"FR940202-1-00020"));
+        System.out.println("combMAX di topic=400 doc='FR940202-1-00020': "+combMAX(runs,400,"LA032590-0089"));
+
+        System.out.println("*** TEST combSUM ...");
+        System.out.println("combSUM di topic=400 doc='farlocco': "+combSUM(runs,400,"farlocco"));
+        System.out.println("combSUM di topic=400 doc='FR940202-1-00020': "+combSUM(runs,400,"FR940202-1-00020"));
+        System.out.println("combSUM di topic=400 doc='FR940202-1-00020': "+combSUM(runs,400,"LA032590-0089"));
 
     }//main
 }//ResRun
