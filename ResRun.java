@@ -3,7 +3,6 @@
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 
 public class ResRun{
 
@@ -109,8 +108,17 @@ public class ResRun{
         runN[8] = leggiRunNorm("D:/Uni/IR/IRprogVario/terrier-core-4.1/var/results/TF_IDF_8.res");
         runN[9] = leggiRunNorm("D:/Uni/IR/IRprogVario/terrier-core-4.1/var/results/Hiemstra_LM0.15_9.res");
 
-        System.out.println("*** CREAZIONE MAPPA ...");
+        Record[] runs=new Record[462875];
+
+        for(int j=0; j<10;j++) {
+            for (int i = 0; i < runN[j].length; i++) {
+                runs[j*10+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+            }//for
+        }//for
+
+        /*System.out.println("*** CREAZIONE MAPPA ...");
         String[] modelli=new String[10];
+
         HashMap<Chiavi, Double> runs= new HashMap<Chiavi, Double>();
 
         for(int j=0; j<10; j++){
@@ -125,7 +133,7 @@ public class ResRun{
         System.out.println("*** NOMI MODELLI:");
         for(int j=0; j<10; j++){
             System.out.println("--- "+ modelli[j]+" ---");
-        }//for
+        }//for*/
         
     }//main
 }//ResRun
