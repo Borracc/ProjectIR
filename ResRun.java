@@ -168,8 +168,8 @@ public class ResRun{
         }//for
 
         System.out.println("*** CREAZIONE LISTA DOCUMENT_ID ...");
-        String[] docs = new String[462875];   //Lista dei Doc_ID
-        int max = 0;    //max numero di doc_ID
+        String[] docs = new String[70369];   //Lista dei Doc_ID
+        int max = 0;    //max numero di doc_ID = 70369
         boolean found = false;
         for(int k=0; k<runs.length; k++){
             for (int m=0; m<max; m++) {
