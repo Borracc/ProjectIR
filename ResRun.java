@@ -3,6 +3,7 @@
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 
 public class ResRun{
 
@@ -87,7 +88,6 @@ public class ResRun{
         }//for
 
         return runN;
-
     }//leggiRunNorm
 
     public static double[] getScores(Record[] runs, int topic, String doc){
@@ -117,6 +117,18 @@ public class ResRun{
         return min;
     }//combMIN
 
+    public static double combMED(Record[] runs, int topic, String doc){
+        double[] res=getScores(runs,topic,doc);
+        double med;
+        Arrays.sort(res);
+        if(res.length%2==0){
+            med=(res[res.length/2]+res[(res.length/2)-1])/2;;
+        }else{
+            med=res[res.length/2];
+        }//if-else
+        return med;
+    }//combMED
+
     public static double combMAX(Record[] runs, int topic, String doc){
         double[] res=getScores(runs,topic,doc);
         double max=res[0];
@@ -136,6 +148,24 @@ public class ResRun{
         }//for
         return sum;
     }//combSUM
+
+    public static double combANZ(Record[] runs, int topic, String doc){
+        double[] res=getScores(runs,topic,doc);
+        double sum=res[0];
+        for(int i=1; i<res.length;i++){
+            sum+=res[i];
+        }//for
+        return sum/res.length;
+    }//combANZ
+
+    public static double combMNZ(Record[] runs, int topic, String doc){
+        double[] res=getScores(runs,topic,doc);
+        double sum=res[0];
+        for(int i=1; i<res.length;i++){
+            sum+=res[i];
+        }//for
+        return sum*res.length;
+    }//combMNZ
 
     public static void main(String[] args){
 
@@ -185,18 +215,6 @@ public class ResRun{
             }//if
             found = false;
         }//for
-
-        System.out.println("*** TEST combMIN ...");
-        System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"FR940202-1-00020"));
-        System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"LA032590-0089"));
-
-        System.out.println("*** TEST combMAX ...");
-        System.out.println("combMAX di topic=400 doc='FR940202-1-00020': "+combMAX(runs,400,"FR940202-1-00020"));
-        System.out.println("combMAX di topic=400 doc='FR940202-1-00020': "+combMAX(runs,400,"LA032590-0089"));
-
-        System.out.println("*** TEST combSUM ...");
-        System.out.println("combSUM di topic=400 doc='FR940202-1-00020': "+combSUM(runs,400,"FR940202-1-00020"));
-        System.out.println("combSUM di topic=400 doc='FR940202-1-00020': "+combSUM(runs,400,"LA032590-0089"));
 
     }//main
 }//ResRun
