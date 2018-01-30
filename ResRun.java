@@ -92,9 +92,6 @@ public class ResRun{
 
     public static double[] getScores(Record[] runs, int topic, String doc){
         double[] result= new double[10];
-        for(int i=0; i<result.length;i++){
-            result[i]=0.0;
-        }//for
         int index=0;
         for(int k=0; k<runs.length; k++){
             if(runs[k].getTopic()==topic && runs[k].getDoc().equals(doc)) {
@@ -102,7 +99,11 @@ public class ResRun{
                 index++;
             }//if
         }//for
-        return result;
+        double[] result2= new double[index];
+        for(int i=0; i<result2.length; i++){
+              result2[i]=result[i];
+        }//for
+        return result2;
     }//getScores
 
     public static double combMIN(Record[] runs, int topic, String doc){
@@ -186,17 +187,14 @@ public class ResRun{
         }//for
 
         System.out.println("*** TEST combMIN ...");
-        System.out.println("combMIN di topic=400 doc='farlocco': "+combMIN(runs,400,"farlocco"));
         System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"FR940202-1-00020"));
         System.out.println("combMIN di topic=400 doc='FR940202-1-00020': "+combMIN(runs,400,"LA032590-0089"));
 
         System.out.println("*** TEST combMAX ...");
-        System.out.println("combMAX di topic=400 doc='farlocco': "+combMAX(runs,400,"farlocco"));
         System.out.println("combMAX di topic=400 doc='FR940202-1-00020': "+combMAX(runs,400,"FR940202-1-00020"));
         System.out.println("combMAX di topic=400 doc='FR940202-1-00020': "+combMAX(runs,400,"LA032590-0089"));
 
         System.out.println("*** TEST combSUM ...");
-        System.out.println("combSUM di topic=400 doc='farlocco': "+combSUM(runs,400,"farlocco"));
         System.out.println("combSUM di topic=400 doc='FR940202-1-00020': "+combSUM(runs,400,"FR940202-1-00020"));
         System.out.println("combSUM di topic=400 doc='FR940202-1-00020': "+combSUM(runs,400,"LA032590-0089"));
 
