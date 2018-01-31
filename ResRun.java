@@ -53,26 +53,36 @@ public class ResRun{
         return run2;
     }//leggiRun
 
-    public static RunDataNorm[] leggiRunNorm(String pathFile){
-
-        RunData[] run= leggiRun(pathFile);
-
+    public static double[] getMinsRun(RunData[] run){
         double[] scoreMin = new double[50];
-        double[] scoreMax = new double[50];
         for(int i=0; i<50; i++){
             scoreMin[i]=Double.POSITIVE_INFINITY;
-            scoreMax[i]=Double.NEGATIVE_INFINITY;
         }//for
-
         int j=0;
         for(int i=0; i<50; i++){
             while (j<run.length) {
-                //System.out.println("--- j: "+j+" run L: "+run.length);
                 if(run[j].getTopic() != i + 351){
                     break;
                 }//if
                 if (scoreMin[i] > run[j].getScore()) {
                     scoreMin[i] = run[j].getScore();
+                }//if
+                j++;
+            }//while
+        }//for
+        return scoreMin;
+    }//getMinRun
+
+    public static double[] getMaxsRun(RunData[] run){
+        double[] scoreMax = new double[50];
+        for(int i=0; i<50; i++){
+            scoreMax[i]=Double.NEGATIVE_INFINITY;
+        }//for
+        int j=0;
+        for(int i=0; i<50; i++){
+            while (j<run.length) {
+                if(run[j].getTopic() != i + 351){
+                    break;
                 }//if
                 if (scoreMax[i] < run[j].getScore()) {
                     scoreMax[i] = run[j].getScore();
@@ -80,14 +90,88 @@ public class ResRun{
                 j++;
             }//while
         }//for
+        return scoreMax;
+    }//getMaxsRun
+
+    public static double[] getSumMins(RunData[] run, double[] mins){
+        double[] scoreSumMin = new double[50];
+        for(int i=0; i<50; i++){
+            scoreSumMin[i]=0.0;
+        }//for
+        int j=0;
+        for(int i=0; i<50; i++){
+            while (j<run.length) {
+                if(run[j].getTopic() != i + 351){
+                    break;
+                }//if
+                scoreSumMin[i]+=run[j].getScore()-mins[i];
+                j++;
+            }//while
+        }//for
+        return scoreSumMin;
+    }//getSumMins
+
+    public static double[] getAvgsRun(RunData[] run){
+        double[] scoreAvg = new double[50];
+        for(int i=0; i<50; i++){
+            scoreAvg[i]=0.0;
+        }//for
+        int j=0;
+        for(int i=0; i<50; i++){
+            int k=0;
+            while (j<run.length) {
+                if(run[j].getTopic() != i + 351){
+                    scoreAvg[i]=scoreAvg[i]/k;
+                    break;
+                }//if
+                scoreAvg[i]+=run[j].getScore();
+                k++;
+                j++;
+            }//while
+        }//for
+        return scoreAvg;
+    }//getAvgsRun
+
+    public static double[] getStdsRun(RunData[] run, double[] avgs){
+        double[] scoreStds = new double[50];
+        for(int i=0; i<50; i++){
+            scoreStds[i]=0.0;
+        }//for
+        int j=0;
+        for(int i=0; i<50; i++){
+            int k=0;
+            while (j<run.length) {
+                if(run[j].getTopic() != i + 351){
+                    scoreStds[i]=Math.sqrt(scoreStds[i]/k);
+                    break;
+                }//if
+
+                double scarto=run[j].getScore()-avgs[i];
+                scoreStds[i]+=Math.pow(scarto,2);
+                k++;
+                j++;
+            }//while
+        }//for
+        return scoreStds;
+    }//getStdsRun
+
+    public static RunDataNorm[] leggiRunNorm(String pathFile){
+        RunData[] run= leggiRun(pathFile);
+
+        double[] scoreMin = getMinsRun(run);
+        double[] scoreMax = getMaxsRun(run);
+        double[] scoreSumMin = getSumMins(run,scoreMin);
+        double[] scoreAvg= getAvgsRun(run);
+        double[] scoreStds= getStdsRun(run, scoreAvg);
 
         RunDataNorm[] runN=new RunDataNorm[run.length];
         for(int i=0; i<runN.length; i++){
             int topicIdx=run[i].getTopic()-351;
-            runN[i] = new RunDataNorm(run[i],scoreMin[topicIdx],scoreMax[topicIdx]);
+            runN[i] = new RunDataNorm(run[i], scoreMin[topicIdx], scoreMax[topicIdx], scoreSumMin[topicIdx], scoreAvg[topicIdx], scoreStds[topicIdx]);
         }//for
 
         return runN;
+
     }//leggiRunNorm
 
     public static double[] getScores(Record[] runs, int topic, String doc){
@@ -101,7 +185,7 @@ public class ResRun{
         }//for
         double[] result2= new double[index];
         for(int i=0; i<result2.length; i++){
-              result2[i]=result[i];
+            result2[i]=result[i];
         }//for
         return result2;
     }//getScores
@@ -122,7 +206,7 @@ public class ResRun{
         double med;
         Arrays.sort(res);
         if(res.length%2==0){
-            med=(res[res.length/2]+res[(res.length/2)-1])/2;;
+            med=(res[res.length/2]+res[(res.length/2)-1])/2;
         }else{
             med=res[res.length/2];
         }//if-else
@@ -189,18 +273,18 @@ public class ResRun{
         Record[] runs=new Record[462875];
         for(int j=0; j<5;j++) {
             for (int i = 0; i < runN[j].length; i++) {
-                runs[j*47396+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+                runs[j*47396+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getNormStandard());
             }//for
         }//for
         for(int j=5; j<10;j++) {
             for (int i = 0; i < runN[j].length; i++) {
-                runs[236980+(j-5)*45179+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getScoreNorm());
+                runs[236980+(j-5)*45179+i] = new Record(runN[j][i].getTopic(),runN[j][i].getIdDoc(),runN[j][i].getIdRun(),runN[j][i].getNormStandard());
             }//for
         }//for
 
-        System.out.println("*** CREAZIONE LISTA DOCUMENT_ID ...");
-        String[] docs = new String[70369];   //Lista dei Doc_ID
-        int max = 0;    //max numero di doc_ID = 70369
+        /*System.out.println("*** CREAZIONE LISTA DOCUMENT_ID ...");
+        String[] docs = new String[462875];   //Lista dei Doc_ID
+        int max = 0;    //max numero di doc_ID
         boolean found = false;
         for(int k=0; k<runs.length; k++){
             for (int m=0; m<max; m++) {
@@ -214,7 +298,7 @@ public class ResRun{
                 max++;
             }//if
             found = false;
-        }//for
+        }//for*/
 
     }//main
 }//ResRun
