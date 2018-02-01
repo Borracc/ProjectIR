@@ -1,22 +1,56 @@
-//ResRun.java
+//RankFusion.java
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
-public class ResRun{
+public class RankFusion {
+
+    public static PrintStream apriFileScrittura(String nome){
+        try{
+            FileOutputStream file = new FileOutputStream(nome);
+            PrintStream scrivi = new PrintStream(file);
+            return scrivi;
+        }catch (IOException e){
+            System.out.println("Errore: " + e);
+            System.exit(1);
+            return null;
+        }//try-catch
+    }//apriFileScrittura
+
+    public static InputStream apriFileLettura(String nome){
+        File doc=new File(nome);
+        URL path=null;
+        try{
+            path=doc.toURL();
+            InputStream is=path.openStream();
+            return is;
+        }catch (MalformedURLException e){
+            System.out.println("Attenzione:" + e);
+            return null;
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+            return null;
+        }//try-catch
+    }//apriFileScrittura
+
+    public static void chiudiStreamI(InputStream str) throws IOException {
+        str.close();
+    }//chiudiFIleI
+
+    public static void chiudiStreamO(PrintStream str){
+        str.close();
+    }//chiudiFIleO
 
     //lettura delle run e normalizzazione degli scores
     public static RunData[] leggiRun(String pathFile){
 
         RunData[] run1=new RunData[47396];
         int index=0;
-
         // definiamo il percorso al file da leggere
         File doc=new File(pathFile);
         URL path=null;
-
         // creaiamo un blocco try-catch per intercettare le eccezioni
         try{
             // mostriamo il percorso al file
@@ -176,11 +210,11 @@ public class ResRun{
     }//leggiRunNorm
 
     //Scrittura run su file
-    public static void scriviRun(){//////////////////////////////////////////////implementare
+    public static void scriviRun(String nomeFile, int topic, String doc, int rank, double score, String run){
         try{
-            FileOutputStream file = new FileOutputStream("prova.txt");
+            FileOutputStream file = new FileOutputStream(nomeFile);
             PrintStream scrivi = new PrintStream(file);
-            scrivi.println("Test");
+            scrivi.println(new RunData(topic,"q0",doc,rank,score,run).toString());
         }catch (IOException e){
             System.out.println("Errore: " + e);
             System.exit(1);
@@ -271,7 +305,7 @@ public class ResRun{
         return sum*res.length;
     }//combMNZ
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
 
         RunDataNorm[][] runN= new RunDataNorm[10][];
         System.out.println("*** LETTURA DELLE RUN:");
@@ -301,25 +335,37 @@ public class ResRun{
             }//for
         }//for
 
-        /*System.out.println("*** CREAZIONE LISTA DOCUMENT_ID ...");
+        InputStream is = apriFileLettura("docs.txt");
+        BufferedReader br=new BufferedReader(new InputStreamReader(is));
         String[] docs = new String[70369];   //Lista dei Doc_ID
-        int max = 0;    //max numero di doc_ID
-        boolean found = false;
-        for(int k=0; k<runs.length; k++){
-            for (int m=0; m<max; m++) {
-                if (runs[k].getDoc().compareTo(docs[m])==0) {
-                    found = true;
-                    break;
-                }//if
-            }//for
-            if (!found) {
-                docs[max]=runs[k].getDoc();
-                max++;
-            }//if
-            found = false;
+        for(int i=0; i<docs.length;i++){
+            docs[i]=br.readLine();
         }//for
+        chiudiStreamI(is);
+
+        PrintStream ps1=apriFileScrittura("combMINstd");
+        PrintStream ps2=apriFileScrittura("combMINsum");
+        PrintStream ps3=apriFileScrittura("combMINzmuv");
 
         System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
+        System.out.println("*** RANK FUSION ... combMIN ..");
+        //RunDataNorm[][] combMinFR=new RunDataNorm[50][docs.length];
+        for(int i=0; i<50; i++){
+            for(int j=0; j<docs.length; j++){
+                if(combMIN(runs,351+i,docs[j],0)!=Double.POSITIVE_INFINITY){
+                    ps1.println(new RunData(i+351,"q0",docs[j],0,combMIN(runs,351+i,docs[j],0),"combMINstd").toString());
+                    ps2.println(new RunData(i+351,"q0",docs[j],0,combMIN(runs,351+i,docs[j],1),"combMINsum").toString());
+                    ps3.println(new RunData(i+351,"q0",docs[j],0,combMIN(runs,351+i,docs[j],2),"combMINzmuv").toString());
+                }//if
+            }//for
+            System.out.println(" .. Fatto topic: "+(i+351));
+        }//for
+
+        chiudiStreamO(ps1);
+        chiudiStreamO(ps2);
+        chiudiStreamO(ps3);
+
+        /*System.out.println("*** RANK FUSION ... combMIN ..");
         RunDataNorm[][] combMinFR=new RunDataNorm[50][docs.length];
         for(int i=0; i<combMinFR.length; i++){
             for(int j=0; j<combMinFR[i].length; j++){
@@ -329,7 +375,8 @@ public class ResRun{
                         combMIN(runs,351+i,docs[j],2));
             }//for
         }//for
-
+        */
+        /*System.out.println("*** RANK FUSION ... combMAX ..");
         RunDataNorm[][] combMaxFR=new RunDataNorm[50][docs.length];
         for(int i=0; i<combMaxFR.length; i++){
             for(int j=0; j<combMaxFR[i].length; j++){
@@ -340,6 +387,7 @@ public class ResRun{
             }//for
         }//for
 
+        System.out.println("*** RANK FUSION ... combMED ..");
         RunDataNorm[][] combMedFR=new RunDataNorm[50][docs.length];
         for(int i=0; i<combMedFR.length; i++){
             for(int j=0; j<combMedFR[i].length; j++){
@@ -350,6 +398,7 @@ public class ResRun{
             }//for
         }//for
 
+        System.out.println("*** RANK FUSION ... combSUM ..");
         RunDataNorm[][] combSumFR=new RunDataNorm[50][docs.length];
         for(int i=0; i<combSumFR.length; i++){
             for(int j=0; j<combSumFR[i].length; j++){
@@ -360,6 +409,7 @@ public class ResRun{
             }//for
         }//for
 
+        System.out.println("*** RANK FUSION ... combANZ ..");
         RunDataNorm[][] combAnzFR=new RunDataNorm[50][docs.length];
         for(int i=0; i<combAnzFR.length; i++){
             for(int j=0; j<combAnzFR[i].length; j++){
@@ -370,6 +420,7 @@ public class ResRun{
             }//for
         }//for
 
+        System.out.println("*** RANK FUSION ... combMNZ ..");
         RunDataNorm[][] combMnzFR=new RunDataNorm[50][docs.length];
         for(int i=0; i<combMnzFR.length; i++){
             for(int j=0; j<combMnzFR[i].length; j++){
@@ -380,12 +431,6 @@ public class ResRun{
             }//for
         }//for*/
 
-        //System.out.println("*** ORDINAMENTO DEI RISULTATI ...");
-        //------------------
-
-
-        //System.out.println("*** SCRITTURA DEI FILE ...");
-        //------------------
 
     }//main
-}//ResRun
+}//RankFusion

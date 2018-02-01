@@ -15,9 +15,9 @@ public class RunDataNorm  extends  RunData{
 
     public RunDataNorm(){
         super();
-        normStandard=0;
-        normSum=0;
-        normZMUV=0;
+        normStandard=0.0;
+        normSum=0.0;
+        normZMUV=0.0;
     }//costruttore di default
 
     public RunDataNorm(int t, String q, String d, int r, double s, String run, double nSt, double nSu, double nZm){

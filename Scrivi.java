@@ -1,11 +1,52 @@
-//ResRun.java
+//Scrivi.java
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
-public class ResRun{
+public class Scrivi {
+
+    public static PrintStream apriFileScrittura(String nome){
+        try{
+            FileOutputStream file = new FileOutputStream(nome);
+            PrintStream scrivi = new PrintStream(file);
+            return scrivi;
+        }catch (IOException e){
+            System.out.println("Errore: " + e);
+            System.exit(1);
+            return null;
+        }//try-catch
+    }//apriFileScrittura
+
+    public static BufferedReader apriFileLettura(String nome){
+        File doc=new File(nome);
+        URL path=null;
+
+        try{
+            path=doc.toURL();
+            String s;
+
+            InputStream is=path.openStream();
+            BufferedReader br=new BufferedReader(new InputStreamReader(is));
+
+            return br;
+        }catch (MalformedURLException e){
+            System.out.println("Attenzione:" + e);
+            return null;
+        }catch (IOException e){
+            System.out.println(e.getMessage());
+            return null;
+        }//try-catch
+    }//apriFileScrittura
+
+    public static void chiudiStreamI(InputStream str) throws IOException {
+        str.close();
+    }//chiudiFIleI
+
+    public static void chiudiStreamO(PrintStream str){
+        str.close();
+    }//chiudiFIleO
 
     //lettura delle run e normalizzazione degli scores
     public static RunData[] leggiRun(String pathFile){
@@ -301,7 +342,9 @@ public class ResRun{
             }//for
         }//for
 
-        /*System.out.println("*** CREAZIONE LISTA DOCUMENT_ID ...");
+        PrintStream scrivi=apriFileScrittura("docs.txt");
+
+        System.out.println("*** CREAZIONE LISTA DOCUMENT_ID ...");
         String[] docs = new String[70369];   //Lista dei Doc_ID
         int max = 0;    //max numero di doc_ID
         boolean found = false;
@@ -314,78 +357,14 @@ public class ResRun{
             }//for
             if (!found) {
                 docs[max]=runs[k].getDoc();
+                scrivi.println(docs[max]);
                 max++;
             }//if
             found = false;
         }//for
 
-        System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
-        RunDataNorm[][] combMinFR=new RunDataNorm[50][docs.length];
-        for(int i=0; i<combMinFR.length; i++){
-            for(int j=0; j<combMinFR[i].length; j++){
-                combMinFR[i][j]=new RunDataNorm(351+i, "q0", docs[j],0,0.0,"combMinFR",
-                        combMIN(runs,351+i,docs[j],0),
-                        combMIN(runs,351+i,docs[j],1),
-                        combMIN(runs,351+i,docs[j],2));
-            }//for
-        }//for
-
-        RunDataNorm[][] combMaxFR=new RunDataNorm[50][docs.length];
-        for(int i=0; i<combMaxFR.length; i++){
-            for(int j=0; j<combMaxFR[i].length; j++){
-                combMaxFR[i][j]=new RunDataNorm(351+i, "q0", docs[j],0,0.0,"combMaxFR",
-                        combMAX(runs,351+i,docs[j],0),
-                        combMAX(runs,351+i,docs[j],1),
-                        combMAX(runs,351+i,docs[j],2));
-            }//for
-        }//for
-
-        RunDataNorm[][] combMedFR=new RunDataNorm[50][docs.length];
-        for(int i=0; i<combMedFR.length; i++){
-            for(int j=0; j<combMedFR[i].length; j++){
-                combMedFR[i][j]=new RunDataNorm(351+i, "q0", docs[j],0,0.0,"combMedFR",
-                        combMED(runs,351+i,docs[j],0),
-                        combMED(runs,351+i,docs[j],1),
-                        combMED(runs,351+i,docs[j],2));
-            }//for
-        }//for
-
-        RunDataNorm[][] combSumFR=new RunDataNorm[50][docs.length];
-        for(int i=0; i<combSumFR.length; i++){
-            for(int j=0; j<combSumFR[i].length; j++){
-                combSumFR[i][j]=new RunDataNorm(351+i, "q0", docs[j],0,0.0,"combSumFR",
-                        combSUM(runs,351+i,docs[j],0),
-                        combSUM(runs,351+i,docs[j],1),
-                        combSUM(runs,351+i,docs[j],2));
-            }//for
-        }//for
-
-        RunDataNorm[][] combAnzFR=new RunDataNorm[50][docs.length];
-        for(int i=0; i<combAnzFR.length; i++){
-            for(int j=0; j<combAnzFR[i].length; j++){
-                combAnzFR[i][j]=new RunDataNorm(351+i, "q0", docs[j],0,0.0,"combAnzFR",
-                        combANZ(runs,351+i,docs[j],0),
-                        combANZ(runs,351+i,docs[j],1),
-                        combANZ(runs,351+i,docs[j],2));
-            }//for
-        }//for
-
-        RunDataNorm[][] combMnzFR=new RunDataNorm[50][docs.length];
-        for(int i=0; i<combMnzFR.length; i++){
-            for(int j=0; j<combMnzFR[i].length; j++){
-                combMnzFR[i][j]=new RunDataNorm(351+i, "q0", docs[j],0,0.0,"combMnzFR",
-                        combMNZ(runs,351+i,docs[j],0),
-                        combMNZ(runs,351+i,docs[j],1),
-                        combMNZ(runs,351+i,docs[j],2));
-            }//for
-        }//for*/
-
-        //System.out.println("*** ORDINAMENTO DEI RISULTATI ...");
-        //------------------
-
-
-        //System.out.println("*** SCRITTURA DEI FILE ...");
-        //------------------
+        chiudiStreamO(scrivi);
 
     }//main
-}//ResRun
+
+}//Scrivi

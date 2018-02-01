@@ -3,21 +3,27 @@ public class Record {
     private int topic;
     private String doc;
     private String model;
-    private double score;
+    private double scoreStd;
+    private double scoreSum;
+    private double scoreZMUV;
 
     public Record(){
         topic=0;
         doc="doc0";
         model="mod0";
-        score=0.5;
+        scoreStd=0.5;
+        scoreSum=0.5;
+        scoreZMUV=0.5;
     }//Costruttore di default
 
-    public Record(int t, String d, String m, double s){
+    public Record(int t, String d, String m, double std, double sum, double zmuv){
         topic=t;
         doc=d;
         model=m;
-        score=s;
-    }//Costruttore di default
+        scoreStd=std;
+        scoreSum=sum;
+        scoreZMUV=zmuv;
+    }//Costruttore parametrico
 
     //metodi accessori
 
@@ -33,12 +39,20 @@ public class Record {
         return model;
     }//getModel
 
-    public double getScore() {
-        return score;
-    }//getScore
+    public double getScoreStd() {
+        return scoreStd;
+    }//getScoreStd
+
+    public double getScoreSum() {
+        return scoreSum;
+    }//getScoreSum
+
+    public double getScoreZMUV() {
+        return scoreZMUV;
+    }//getScoreZMUV
 
     @Override
     public String toString() {
-        return ""+topic+" "+doc+" "+model+" "+score;
+        return ""+topic+" "+doc+" "+model+" "+scoreStd+" "+scoreSum+" "+scoreZMUV;
     }//toString
 }//Record
