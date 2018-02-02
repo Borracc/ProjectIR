@@ -344,13 +344,12 @@ public class RankFusion {
         }//for
         chiudiStreamI(is);
 
-        /*PrintStream ps1=apriFileScrittura("combMINstd.txt");
+        PrintStream ps1=apriFileScrittura("combMINstd.txt");
         PrintStream ps2=apriFileScrittura("combMINsum.txt");
         PrintStream ps3=apriFileScrittura("combMINzmuv.txt");
 
         System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
         System.out.println("*** RANK FUSION ... combMIN ..");
-        //RunDataNorm[][] combMinFR=new RunDataNorm[50][docs.length];
         for(int i=0; i<50; i++){
             for(int j=0; j<docs.length; j++){
                 if(combMIN(runs,351+i,docs[j],0)!=Double.POSITIVE_INFINITY){
@@ -364,8 +363,8 @@ public class RankFusion {
 
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
-        chiudiStreamO(ps3);*/
-
+        chiudiStreamO(ps3);
+        /*
         PrintStream ps1=apriFileScrittura("combMAXstd.txt");
         PrintStream ps2=apriFileScrittura("combMAXsum.txt");
         PrintStream ps3=apriFileScrittura("combMAXzmuv.txt");
@@ -386,7 +385,7 @@ public class RankFusion {
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
         chiudiStreamO(ps3);
-
+        */
         ///////////////////////////////
         /*
         PrintStream ps1=apriFileScrittura("combMEDstd.txt");

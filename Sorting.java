@@ -45,7 +45,7 @@ public class Sorting {
     //lettura delle run e normalizzazione degli scores
     public static RunData[] leggiRun(String pathFile){
 
-        RunData[] run1=new RunData[71195];
+        RunData[] run1=new RunData[83991];
         int index=0;
         // definiamo il percorso al file da leggere
         File doc=new File(pathFile);
@@ -89,20 +89,20 @@ public class Sorting {
 
    public static void main(String[] args) throws IOException {
 
-        String nomeFile="combMAXstd.txt";
+        String nomeFile="combMAXzmuv";//solo il nome senza estensione
 
         System.out.println("*** LETTURA RUN:");
-        RunData[] run = leggiRun(nomeFile);
+        RunData[] run = leggiRun(nomeFile+".txt");
 
         System.out.println("*** ORDINAMENTO RUN ...");
-        int k=0;
-        for (int i = 0; i < run.length; i++) {
-            if(run[i].getTopic()!=k){
-                k++;
+        int correntTopic=351;
+        for (int i = 0; i < run.length-1; i++) {
+            if(run[i].getTopic()!=correntTopic){
+                correntTopic++;
             }//if
             double max = run[i].getScore();
-            int index = 0;
-            for (int j = i + 1; j < run.length && run[j].getTopic()==k; j++) {
+            int index = i;
+            for (int j = i + 1; j < run.length && run[j].getTopic()==correntTopic; j++) {
                 if (max < run[j].getScore()) {
                     max = run[j].getScore();
                     index = j;
@@ -113,13 +113,21 @@ public class Sorting {
             run[index] = temp;
         }//for
 
+
         System.out.println("*** SCRITTURA RUN ...");
-        PrintStream ps=apriFileScrittura("R"+nomeFile);
+        PrintStream ps=apriFileScrittura("R"+nomeFile+".txt");
+        int rank=0;
         for(int i=0; i<run.length; i++){
-            ps.println(new RunData(run[i].getTopic(),"q0",run[i].getIdDoc(),i,run[i].getScore(),"nomeFile").toString());
+            if(rank!=0 && run[i].getTopic()!=run[i-1].getTopic()){
+                rank=0;
+            }//if
+            ps.println(new RunData(run[i].getTopic(),"q0",run[i].getIdDoc(),rank,run[i].getScore(),nomeFile).toString());
+            rank++;
         }//for
-       chiudiStreamO(ps);
+        chiudiStreamO(ps);
 
     }//main
+
+
 
 }//Sorting
