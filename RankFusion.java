@@ -5,9 +5,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
+/*
+ * Le operazioni sono state scomposte:
+ * questo codice legge le run risultanti dall'indicizzazione e il reperimento di Terrier,
+ * legge dal file 'docs.txt' gli id dei documenti che compaiono nelle run,
+ * esegue le strategie di rank fusion (combMIN,combMED,combMAX,combSUM,combMNZ,combANZ) per ogni documento e per ogni topic
+ * e ne memorizza i risultati in file 'comb***@@@.txt' in cui:
+ * *** = strategia di rank fusion(MIN,MED,MAX,SUM,MNZ,ANZ)
+ * @@@ = metodo di normalizzazione(std,sum,zmuv)
+ * ATTEZIONE: L'esecuzione richiede molto tempo, si consiglia di commentare le parti di codice che non interessano nel metodo 'main'
+ * */
+
 public class RankFusion {
 
-    public static PrintStream apriFileScrittura(String nome){
+    //metodi per lettura/scrittura
+    private static PrintStream apriFileScrittura(String nome){
         try{
             FileOutputStream file = new FileOutputStream(nome);
             PrintStream scrivi = new PrintStream(file);
@@ -19,7 +31,7 @@ public class RankFusion {
         }//try-catch
     }//apriFileScrittura
 
-    public static InputStream apriFileLettura(String nome){
+    private static InputStream apriFileLettura(String nome){
         File doc=new File(nome);
         URL path=null;
         try{
@@ -35,38 +47,30 @@ public class RankFusion {
         }//try-catch
     }//apriFileScrittura
 
-    public static void chiudiStreamI(InputStream str) throws IOException {
+    private static void chiudiStreamI(InputStream str) throws IOException {
         str.close();
     }//chiudiFIleI
 
-    public static void chiudiStreamO(PrintStream str){
+    private static void chiudiStreamO(PrintStream str){
         str.close();
     }//chiudiFIleO
 
-    //lettura delle run e normalizzazione degli scores
-    public static RunData[] leggiRun(String pathFile){
+    //lettura delle run dal file ***.res
+    private static RunData[] leggiRun(String pathFile){
 
         RunData[] run1=new RunData[47396];
         int index=0;
-        // definiamo il percorso al file da leggere
+
         File doc=new File(pathFile);
         URL path=null;
-        // creaiamo un blocco try-catch per intercettare le eccezioni
-        try{
-            // mostriamo il percorso al file
-            path=doc.toURL();
-            //System.out.println("Il doc si trova nel percorso" + path);
 
-            //mostriamo il nome del file
+        try{
+            path=doc.toURL();
             doc=new File(path.getFile());
             System.out.println("Nome del file " + doc);
             String s;
-
-            // apriamo lo stream di input...
             InputStream is=path.openStream();
             BufferedReader br=new BufferedReader(new InputStreamReader(is));
-
-            // ...e avviamo la lettura del file
             do{
                 s=br.readLine();
                 if(s!=null){
@@ -88,7 +92,8 @@ public class RankFusion {
         return run2;
     }//leggiRun
 
-    public static double[] getMinsRun(RunData[] run){
+    //Data una run restituisce il minimo score di ogni topic
+    private static double[] getMinsRun(RunData[] run){
         double[] scoreMin = new double[50];
         for(int i=0; i<50; i++){
             scoreMin[i]=Double.POSITIVE_INFINITY;
@@ -108,7 +113,8 @@ public class RankFusion {
         return scoreMin;
     }//getMinRun
 
-    public static double[] getMaxsRun(RunData[] run){
+    //Data una run restituisce il massimo score di ogni topic
+    private static double[] getMaxsRun(RunData[] run){
         double[] scoreMax = new double[50];
         for(int i=0; i<50; i++){
             scoreMax[i]=Double.NEGATIVE_INFINITY;
@@ -128,7 +134,8 @@ public class RankFusion {
         return scoreMax;
     }//getMaxsRun
 
-    public static double[] getSumMins(RunData[] run, double[] mins){
+    //Data una run restituisce la somma score di ogni topic scalati secondo il relativo minimo
+    private static double[] getSumMins(RunData[] run, double[] mins){
         double[] scoreSumMin = new double[50];
         for(int i=0; i<50; i++){
             scoreSumMin[i]=0.0;
@@ -146,7 +153,8 @@ public class RankFusion {
         return scoreSumMin;
     }//getSumMins
 
-    public static double[] getAvgsRun(RunData[] run){
+    //Data una run restituisce la media degli scores di ogni topic
+    private static double[] getAvgsRun(RunData[] run){
         double[] scoreAvg = new double[50];
         for(int i=0; i<50; i++){
             scoreAvg[i]=0.0;
@@ -167,7 +175,8 @@ public class RankFusion {
         return scoreAvg;
     }//getAvgsRun
 
-    public static double[] getStdsRun(RunData[] run, double[] avgs){
+    //Data una run restituisce lo standard error degli scores di ogni topic
+    private static double[] getStdsRun(RunData[] run, double[] avgs){
         double[] scoreStds = new double[50];
         for(int i=0; i<50; i++){
             scoreStds[i]=0.0;
@@ -190,7 +199,8 @@ public class RankFusion {
         return scoreStds;
     }//getStdsRun
 
-    public static RunDataNorm[] leggiRunNorm(String pathFile){
+    //lettura delle run e normalizzazione degli scores secondo i 3 metodi: stamdard, sum e ZMUV
+    private static RunDataNorm[] leggiRunNorm(String pathFile){
         RunData[] run= leggiRun(pathFile);
 
         double[] scoreMin = getMinsRun(run);
@@ -204,13 +214,13 @@ public class RankFusion {
             int topicIdx=run[i].getTopic()-351;
             runN[i] = new RunDataNorm(run[i], scoreMin[topicIdx], scoreMax[topicIdx], scoreSumMin[topicIdx], scoreAvg[topicIdx], scoreStds[topicIdx]);
         }//for
-
         return runN;
-
     }//leggiRunNorm
 
     //Strategie di rankfusion
-    public static double[] getScores(Record[] runs, int topic, String doc, int normMethod){
+    //Dati i risultati delle run, il numero del topic, l'id del documento e il metodo di normalizzzazione
+    //restituisce gli scores corrispondenti
+    private static double[] getScores(Record[] runs, int topic, String doc, int normMethod){
         double[] result= new double[10];
         int index=0;
         for(int k=0; k<runs.length; k++){
@@ -232,7 +242,8 @@ public class RankFusion {
         return result2;
     }//getScores
 
-    public static double combMIN(Record[] runs, int topic, String doc, int normMethod){
+    //dati insieme delle run, topic, id del documento e metodo di normalizzazione restituisce il relativo score minimo
+    private static double combMIN(Record[] runs, int topic, String doc, int normMethod){
         double[] res=getScores(runs,topic,doc,normMethod);
         double min=Double.POSITIVE_INFINITY;
         for(int i=0; i<res.length;i++){
@@ -243,7 +254,8 @@ public class RankFusion {
         return min;
     }//combMIN
 
-    public static double combMED(Record[] runs, int topic, String doc, int normMethod){
+    //dati insieme delle run, topic, id del documento e metodo di normalizzazione restituisce il relativo score mediano
+    private static double combMED(Record[] runs, int topic, String doc, int normMethod){
         double[] res=getScores(runs,topic,doc,normMethod);
         double med=Double.POSITIVE_INFINITY;
         if(res.length>0) {
@@ -257,7 +269,8 @@ public class RankFusion {
         return med;
     }//combMED
 
-    public static double combMAX(Record[] runs, int topic, String doc, int normMethod){
+    ////dati insieme delle run, topic, id del documento e metodo di normalizzazione restituisce il relativo score massimo
+    private static double combMAX(Record[] runs, int topic, String doc, int normMethod){
         double[] res=getScores(runs,topic,doc,normMethod);
         double max=Double.NEGATIVE_INFINITY;
         for(int i=0; i<res.length;i++){
@@ -268,7 +281,8 @@ public class RankFusion {
         return max;
     }//combMAX
 
-    public static double combSUM(Record[] runs, int topic, String doc, int normMethod){
+    //dati insieme delle run, topic, id del documento e metodo di normalizzazione restituisce la somma degli scores relativi
+    private static double combSUM(Record[] runs, int topic, String doc, int normMethod){
         double[] res=getScores(runs,topic,doc,normMethod);
         double sum=Double.POSITIVE_INFINITY;
         if(res.length>0) {
@@ -280,7 +294,9 @@ public class RankFusion {
         return sum;
     }//combSUM
 
-    public static double combANZ(Record[] runs, int topic, String doc, int normMethod){
+    //dati insieme delle run, topic, id del documento e metodo di normalizzazione restituisce la somma degli scores
+    //dividendola per il numero 'presenze' del documento nelle run
+    private static double combANZ(Record[] runs, int topic, String doc, int normMethod){
         double[] res=getScores(runs,topic,doc,normMethod);
         double sum=Double.POSITIVE_INFINITY;
         if(res.length>0) {
@@ -293,7 +309,9 @@ public class RankFusion {
         return sum;
     }//combANZ
 
-    public static double combMNZ(Record[] runs, int topic, String doc, int normMethod){
+    //dati insieme delle run, topic, id del documento e metodo di normalizzazione restituisce la somma degli scores
+    //moltiplicandole per il numero 'presenze' del documento nelle run
+    private static double combMNZ(Record[] runs, int topic, String doc, int normMethod){
         double[] res=getScores(runs,topic,doc,normMethod);
         double sum=Double.POSITIVE_INFINITY;
         if(res.length>0) {
@@ -305,6 +323,7 @@ public class RankFusion {
         }//if
         return sum;
     }//combMNZ
+
 
     public static void main(String[] args) throws IOException {
 
@@ -344,11 +363,14 @@ public class RankFusion {
         }//for
         chiudiStreamI(is);
 
-        PrintStream ps1=apriFileScrittura("combMINstd.txt");
-        PrintStream ps2=apriFileScrittura("combMINsum.txt");
-        PrintStream ps3=apriFileScrittura("combMINzmuv.txt");
-
         System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
+        PrintStream ps1;
+        PrintStream ps2;
+        PrintStream ps3;
+        ///MIN
+        ps1=apriFileScrittura("combMINstd.txt");
+        ps2=apriFileScrittura("combMINsum.txt");
+        ps3=apriFileScrittura("combMINzmuv.txt");
         System.out.println("*** RANK FUSION ... combMIN ..");
         for(int i=0; i<50; i++){
             for(int j=0; j<docs.length; j++){
@@ -360,16 +382,15 @@ public class RankFusion {
             }//for
             System.out.println(" .. Fatto topic: "+(i+351));
         }//for
-
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
         chiudiStreamO(ps3);
-        /*
-        PrintStream ps1=apriFileScrittura("combMAXstd.txt");
-        PrintStream ps2=apriFileScrittura("combMAXsum.txt");
-        PrintStream ps3=apriFileScrittura("combMAXzmuv.txt");
+        ///
 
-        System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
+        ///MAX
+        ps1=apriFileScrittura("combMAXstd.txt");
+        ps2=apriFileScrittura("combMAXsum.txt");
+        ps3=apriFileScrittura("combMAXzmuv.txt");
         System.out.println("*** RANK FUSION ... combMAX ..");
         for(int i=0; i<50; i++){
             for(int j=0; j<docs.length; j++){
@@ -381,18 +402,15 @@ public class RankFusion {
             }//for
             System.out.println(" .. Fatto topic: "+(i+351));
         }//for
-
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
         chiudiStreamO(ps3);
-        */
-        ///////////////////////////////
-        /*
-        PrintStream ps1=apriFileScrittura("combMEDstd.txt");
-        PrintStream ps2=apriFileScrittura("combMEDsum.txt");
-        PrintStream ps3=apriFileScrittura("combMEDzmuv.txt");
+        ///
 
-        System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
+        ///MED
+        ps1=apriFileScrittura("combMEDstd.txt");
+        ps2=apriFileScrittura("combMEDsum.txt");
+        ps3=apriFileScrittura("combMEDzmuv.txt");
         System.out.println("*** RANK FUSION ... combMED ..");
         for(int i=0; i<50; i++){
             for(int j=0; j<docs.length; j++){
@@ -404,17 +422,15 @@ public class RankFusion {
             }//for
             System.out.println(" .. Fatto topic: "+(i+351));
         }//for
-
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
         chiudiStreamO(ps3);
-        */
-        /*///////////////SUM
-        PrintStream ps1=apriFileScrittura("combSUMstd.txt");
-        PrintStream ps2=apriFileScrittura("combSUMsum.txt");
-        PrintStream ps3=apriFileScrittura("combSUMzmuv.txt");
+        ///
 
-        System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
+        ///SUM
+        ps1=apriFileScrittura("combSUMstd.txt");
+        ps2=apriFileScrittura("combSUMsum.txt");
+        ps3=apriFileScrittura("combSUMzmuv.txt");
         System.out.println("*** RANK FUSION ... combSUM ..");
         for(int i=0; i<50; i++){
             for(int j=0; j<docs.length; j++){
@@ -426,17 +442,15 @@ public class RankFusion {
             }//for
             System.out.println(" .. Fatto topic: "+(i+351));
         }//for
-
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
         chiudiStreamO(ps3);
-        */
-        /*////////////////ANZ
-        PrintStream ps1=apriFileScrittura("combANZstd.txt");
-        PrintStream ps2=apriFileScrittura("combANZsum.txt");
-        PrintStream ps3=apriFileScrittura("combANZzmuv.txt");
+        ///
 
-        System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
+        ///ANZ
+        ps1=apriFileScrittura("combANZstd.txt");
+        ps2=apriFileScrittura("combANZsum.txt");
+        ps3=apriFileScrittura("combANZzmuv.txt");
         System.out.println("*** RANK FUSION ... combANZ ..");
         for(int i=0; i<50; i++){
             for(int j=0; j<docs.length; j++){
@@ -448,17 +462,15 @@ public class RankFusion {
             }//for
             System.out.println(" .. Fatto topic: "+(i+351));
         }//for
-
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
         chiudiStreamO(ps3);
-        */
-        /*///////////////////MNZ
-        PrintStream ps1=apriFileScrittura("combMNZstd.txt");
-        PrintStream ps2=apriFileScrittura("combMNZsum.txt");
-        PrintStream ps3=apriFileScrittura("combMNZzmuv.txt");
+        ///
 
-        System.out.println("*** APPLICAZIONE DELLE STRATEGIE DI RANK FUSION ...");
+        ///MNZ
+        ps1=apriFileScrittura("combMNZstd.txt");
+        ps2=apriFileScrittura("combMNZsum.txt");
+        ps3=apriFileScrittura("combMNZzmuv.txt");
         System.out.println("*** RANK FUSION ... combMNZ ..");
         for(int i=0; i<50; i++){
             for(int j=0; j<docs.length; j++){
@@ -470,12 +482,10 @@ public class RankFusion {
             }//for
             System.out.println(" .. Fatto topic: "+(i+351));
         }//for
-
         chiudiStreamO(ps1);
         chiudiStreamO(ps2);
         chiudiStreamO(ps3);
-        */
-
+        ///
 
     }//main
 }//RankFusion

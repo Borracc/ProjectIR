@@ -3,11 +3,18 @@
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
+
+/*
+* Le operazioni sono state scomposte:
+* questo codice legge le run risultanti dall'indicizzazione e il reperimento di Terrier,
+* salva in un file 'docs.txt' gli id dei documenti che compaiono nelle run
+* e meorizza i valori normalizzati secondo i diversi metodi
+* */
 
 public class Scrivi {
 
-    public static PrintStream apriFileScrittura(String nome){
+    //metodi per lettura/scrittura
+    private static PrintStream apriFileScrittura(String nome){
         try{
             FileOutputStream file = new FileOutputStream(nome);
             PrintStream scrivi = new PrintStream(file);
@@ -19,61 +26,26 @@ public class Scrivi {
         }//try-catch
     }//apriFileScrittura
 
-    public static BufferedReader apriFileLettura(String nome){
-        File doc=new File(nome);
-        URL path=null;
-
-        try{
-            path=doc.toURL();
-            String s;
-
-            InputStream is=path.openStream();
-            BufferedReader br=new BufferedReader(new InputStreamReader(is));
-
-            return br;
-        }catch (MalformedURLException e){
-            System.out.println("Attenzione:" + e);
-            return null;
-        }catch (IOException e){
-            System.out.println(e.getMessage());
-            return null;
-        }//try-catch
-    }//apriFileScrittura
-
-    public static void chiudiStreamI(InputStream str) throws IOException {
-        str.close();
-    }//chiudiFIleI
-
-    public static void chiudiStreamO(PrintStream str){
+    private static void chiudiStreamO(PrintStream str){
         str.close();
     }//chiudiFIleO
 
-    //lettura delle run e normalizzazione degli scores
-    public static RunData[] leggiRun(String pathFile){
+    //lettura delle run dal file ***.res
+    private static RunData[] leggiRun(String pathFile){
 
         RunData[] run1=new RunData[47396];
         int index=0;
 
-        // definiamo il percorso al file da leggere
         File doc=new File(pathFile);
         URL path=null;
 
-        // creaiamo un blocco try-catch per intercettare le eccezioni
         try{
-            // mostriamo il percorso al file
             path=doc.toURL();
-            //System.out.println("Il doc si trova nel percorso" + path);
-
-            //mostriamo il nome del file
             doc=new File(path.getFile());
             System.out.println("Nome del file " + doc);
             String s;
-
-            // apriamo lo stream di input...
             InputStream is=path.openStream();
             BufferedReader br=new BufferedReader(new InputStreamReader(is));
-
-            // ...e avviamo la lettura del file
             do{
                 s=br.readLine();
                 if(s!=null){
@@ -95,7 +67,8 @@ public class Scrivi {
         return run2;
     }//leggiRun
 
-    public static double[] getMinsRun(RunData[] run){
+    //Data una run restituisce il minimo score di ogni topic
+    private static double[] getMinsRun(RunData[] run){
         double[] scoreMin = new double[50];
         for(int i=0; i<50; i++){
             scoreMin[i]=Double.POSITIVE_INFINITY;
@@ -115,7 +88,8 @@ public class Scrivi {
         return scoreMin;
     }//getMinRun
 
-    public static double[] getMaxsRun(RunData[] run){
+    //Data una run restituisce il massimo score di ogni topic
+    private static double[] getMaxsRun(RunData[] run){
         double[] scoreMax = new double[50];
         for(int i=0; i<50; i++){
             scoreMax[i]=Double.NEGATIVE_INFINITY;
@@ -135,7 +109,8 @@ public class Scrivi {
         return scoreMax;
     }//getMaxsRun
 
-    public static double[] getSumMins(RunData[] run, double[] mins){
+    //Data una run restituisce la somma score di ogni topic scalati secondo il relativo minimo
+    private static double[] getSumMins(RunData[] run, double[] mins){
         double[] scoreSumMin = new double[50];
         for(int i=0; i<50; i++){
             scoreSumMin[i]=0.0;
@@ -153,7 +128,8 @@ public class Scrivi {
         return scoreSumMin;
     }//getSumMins
 
-    public static double[] getAvgsRun(RunData[] run){
+    //Data una run restituisce la media degli scores di ogni topic
+    private static double[] getAvgsRun(RunData[] run){
         double[] scoreAvg = new double[50];
         for(int i=0; i<50; i++){
             scoreAvg[i]=0.0;
@@ -174,7 +150,8 @@ public class Scrivi {
         return scoreAvg;
     }//getAvgsRun
 
-    public static double[] getStdsRun(RunData[] run, double[] avgs){
+    //Data una run restituisce lo standard error degli scores di ogni topic
+    private static double[] getStdsRun(RunData[] run, double[] avgs){
         double[] scoreStds = new double[50];
         for(int i=0; i<50; i++){
             scoreStds[i]=0.0;
@@ -197,7 +174,8 @@ public class Scrivi {
         return scoreStds;
     }//getStdsRun
 
-    public static RunDataNorm[] leggiRunNorm(String pathFile){
+    //lettura delle run e normalizzazione degli scores secondo i 3 metodi: stamdard, sum e ZMUV
+    private static RunDataNorm[] leggiRunNorm(String pathFile){
         RunData[] run= leggiRun(pathFile);
 
         double[] scoreMin = getMinsRun(run);
@@ -211,106 +189,9 @@ public class Scrivi {
             int topicIdx=run[i].getTopic()-351;
             runN[i] = new RunDataNorm(run[i], scoreMin[topicIdx], scoreMax[topicIdx], scoreSumMin[topicIdx], scoreAvg[topicIdx], scoreStds[topicIdx]);
         }//for
-
         return runN;
-
     }//leggiRunNorm
 
-    //Scrittura run su file
-    public static void scriviRun(){//////////////////////////////////////////////implementare
-        try{
-            FileOutputStream file = new FileOutputStream("prova.txt");
-            PrintStream scrivi = new PrintStream(file);
-            scrivi.println("Test");
-        }catch (IOException e){
-            System.out.println("Errore: " + e);
-            System.exit(1);
-        }//try-catch
-    }//scriviRun
-
-    //Strategie di rankfusion
-    public static double[] getScores(Record[] runs, int topic, String doc, int normMethod){
-        double[] result= new double[10];
-        int index=0;
-        for(int k=0; k<runs.length; k++){
-            if(runs[k].getTopic()==topic && runs[k].getDoc().equals(doc)) {
-                if(normMethod==0){
-                    result[index]=runs[k].getScoreStd();
-                }else if(normMethod==1){
-                    result[index]=runs[k].getScoreSum();
-                }else{
-                    result[index]=runs[k].getScoreZMUV();
-                }//if-else
-                index++;
-            }//if
-        }//for
-        double[] result2= new double[index];
-        for(int i=0; i<result2.length; i++){
-            result2[i]=result[i];
-        }//for
-        return result2;
-    }//getScores
-
-    public static double combMIN(Record[] runs, int topic, String doc, int normMethod){
-        double[] res=getScores(runs,topic,doc,normMethod);
-        double min=Double.POSITIVE_INFINITY;
-        for(int i=1; i<res.length;i++){
-            if(min>res[i]){
-                min=res[i];
-            }//if
-        }//for
-        return min;
-    }//combMIN
-
-    public static double combMED(Record[] runs, int topic, String doc, int normMethod){
-        double[] res=getScores(runs,topic,doc,normMethod);
-        double med;
-        Arrays.sort(res);
-        if(res.length%2==0){
-            med=(res[res.length/2]+res[(res.length/2)-1])/2;
-        }else{
-            med=res[res.length/2];
-        }//if-else
-        return med;
-    }//combMED
-
-    public static double combMAX(Record[] runs, int topic, String doc, int normMethod){
-        double[] res=getScores(runs,topic,doc,normMethod);
-        double max=Double.NEGATIVE_INFINITY;
-        for(int i=1; i<res.length;i++){
-            if(max<res[i]){
-                max=res[i];
-            }//if
-        }//for
-        return max;
-    }//combMAX
-
-    public static double combSUM(Record[] runs, int topic, String doc, int normMethod){
-        double[] res=getScores(runs,topic,doc,normMethod);
-        double sum=res[0];
-        for(int i=1; i<res.length;i++){
-            sum+=res[i];
-        }//for
-        return sum;
-    }//combSUM
-
-    public static double combANZ(Record[] runs, int topic, String doc, int normMethod){
-        double[] res=getScores(runs,topic,doc,normMethod);
-        double sum=res[0];
-        for(int i=1; i<res.length;i++){
-            sum+=res[i];
-        }//for
-        return sum/res.length;
-    }//combANZ
-
-    public static double combMNZ(Record[] runs, int topic, String doc, int normMethod){
-        double[] res=getScores(runs,topic,doc,normMethod);
-        double sum=res[0];
-        for(int i=1; i<res.length;i++){
-            sum+=res[i];
-        }//for
-        return sum*res.length;
-    }//combMNZ
 
     public static void main(String[] args){
 

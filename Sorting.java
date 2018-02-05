@@ -4,9 +4,17 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/*
+ * Le operazioni sono state scomposte:
+ * questo codice legge un file 'comb**@@.txt' specificato contente i risultati dal rank fusion,
+ * riordina le run in ordine decrescente di score e assegna il rank
+ * scrive dei file 'Rcomb**@@.txt' con le run ordinate secondo il rank in formato TREC
+ * */
+
 public class Sorting {
 
-    public static PrintStream apriFileScrittura(String nome){
+    //metodi per lettura/scrittura
+    private static PrintStream apriFileScrittura(String nome){
         try{
             FileOutputStream file = new FileOutputStream(nome);
             PrintStream scrivi = new PrintStream(file);
@@ -18,54 +26,26 @@ public class Sorting {
         }//try-catch
     }//apriFileScrittura
 
-    public static InputStream apriFileLettura(String nome){
-        File doc=new File(nome);
-        URL path=null;
-        try{
-            path=doc.toURL();
-            InputStream is=path.openStream();
-            return is;
-        }catch (MalformedURLException e){
-            System.out.println("Attenzione:" + e);
-            return null;
-        }catch (IOException e){
-            System.out.println(e.getMessage());
-            return null;
-        }//try-catch
-    }//apriFileScrittura
-
-    public static void chiudiStreamI(InputStream str) throws IOException {
-        str.close();
-    }//chiudiFIleI
-
-    public static void chiudiStreamO(PrintStream str){
+    private static void chiudiStreamO(PrintStream str){
         str.close();
     }//chiudiFIleO
 
-    //lettura delle run e normalizzazione degli scores
-    public static RunData[] leggiRun(String pathFile){
+    //lettura del file 'comb**@@.txt'
+    private static RunData[] leggiRun(String pathFile){
 
-        RunData[] run1=new RunData[83991];
+        RunData[] run1=new RunData[47396];
         int index=0;
-        // definiamo il percorso al file da leggere
+
         File doc=new File(pathFile);
         URL path=null;
-        // creaiamo un blocco try-catch per intercettare le eccezioni
-        try{
-            // mostriamo il percorso al file
-            path=doc.toURL();
-            //System.out.println("Il doc si trova nel percorso" + path);
 
-            //mostriamo il nome del file
+        try{
+            path=doc.toURL();
             doc=new File(path.getFile());
             System.out.println("Nome del file " + doc);
             String s;
-
-            // apriamo lo stream di input...
             InputStream is=path.openStream();
             BufferedReader br=new BufferedReader(new InputStreamReader(is));
-
-            // ...e avviamo la lettura del file
             do{
                 s=br.readLine();
                 if(s!=null){
@@ -87,9 +67,9 @@ public class Sorting {
         return run2;
     }//leggiRun
 
-   public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-        String nomeFile="combMAXzmuv";//solo il nome senza estensione
+        String nomeFile="combMEDstd";//solo il nome senza estensione
 
         System.out.println("*** LETTURA RUN:");
         RunData[] run = leggiRun(nomeFile+".txt");
@@ -113,7 +93,6 @@ public class Sorting {
             run[index] = temp;
         }//for
 
-
         System.out.println("*** SCRITTURA RUN ...");
         PrintStream ps=apriFileScrittura("R"+nomeFile+".txt");
         int rank=0;
@@ -127,7 +106,5 @@ public class Sorting {
         chiudiStreamO(ps);
 
     }//main
-
-
 
 }//Sorting

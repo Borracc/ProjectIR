@@ -26,7 +26,6 @@ public class Record {
     }//Costruttore parametrico
 
     //metodi accessori
-
     public int getTopic() {
         return topic;
     }//getTopic

@@ -1,3 +1,5 @@
+//RunData.java
+
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
 
@@ -28,6 +30,7 @@ public class RunData {
         idRun=run;
     }//costruttore parametrico
 
+    //Costruttore data la stringa corrispondente ad una linea della run (linea del file ***.res)
     public RunData(String s){
         int i=0;
         String temp=RunData.leggiParola(s,i);
@@ -48,7 +51,7 @@ public class RunData {
         temp=RunData.leggiParola(s,i);
         i+=temp.length()+1;
         idRun=temp;
-    }//costruttore da Stringa (linea del file
+    }//costruttore da Stringa
 
     public static String leggiParola(String s,int i){
         char[]sc=s.toCharArray();
